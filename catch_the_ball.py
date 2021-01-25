@@ -1,0 +1,117 @@
+import pygame
+from pygame.draw import *
+from random import randint
+
+pygame.init()
+
+FPS = 30
+A, B = 1200, 650  # screen width and height
+sc = pygame.display.set_mode((A, B))
+
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+GREEN = (0, 255, 0)
+MAGENTA = (255, 0, 255)
+CYAN = (0, 255, 255)
+BLACK = (0, 0, 0)
+COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
+
+
+def generate_new_ball() -> list:
+    """
+    генерирует псевдослучайные параметры круга
+    :return: цвет, координаты, радиус, вектор скорости круга
+    """
+
+
+def draw_ball(screen, params) -> None:
+    """
+    рисует круг в заданном месте холста с заданными параметрами
+    :param screen: холст, на котором рисуются круг
+    :param params: параметры круга (color, x, y, r)
+    :return: None
+    """
+
+
+def move_ball(screen, params) -> list:
+    """
+    перемещает круг в направлении, заданном вектором скорости
+    :param screen: холст, на котором осуществляется перемещение круга
+    :param params: параметры круга и его скорости (color, x, y, r, velocity)
+    :return новые параметры круга
+    """
+
+
+def check_collision(params, a, b) -> list:
+    """
+    проверяет столкновение круга с границами холста
+    :param params: параметры круга (color, x, y, r, velocity)
+    :param a: ширина холста
+    :param b: высота холста
+    :return: параметры круга с пересчитанным вектором скорости
+    """
+
+
+def check_hit(params, event) -> bool:
+    """
+    проверяет попадание клика мыши в круг
+    :param params: пармаметры круга (color, x, y, r)
+    :param event: событие = клик мыши по холсту
+    :return: есть попадание: True; нет попадания: False
+    """
+
+def calc_score(params, score) -> tuple:
+    """
+    добавляет к общему счёту число очков,
+    количество которых зависит от параметров полученного круга
+    :param params: пармаметры круга (color, x, y, r, velocity)
+    :param score: счёт
+    :returns: новое значение счёта, разницу между предыд и тек счётом
+    """
+
+
+def print_the_score(screen, score, diff) -> None:
+    """
+    печатает текущее количество очков (счёт) на холст
+    :param screen: холст, на который будет напечатан счёт
+    :param score: текущий счёт
+    :param diff:  разница между пред и тек счётом
+    :return:
+    """
+
+
+def mouse_button_down() -> None:
+    """
+    обрабатывает нажатия кнопок мышки
+    :return:
+    """
+
+
+pygame.display.update()
+clock = pygame.time.Clock()
+finished = False
+screen_is_empty = True
+ball_params = None
+game_score = game_diff = 0
+
+while not finished:
+    clock.tick(FPS)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            finished = True
+            break
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_button_down()
+
+    if screen_is_empty:
+        ball_params = generate_new_ball()
+        draw_ball(sc, ball_params)
+        screen_is_empty = False
+    else:
+        ball_params = move_ball(sc, ball_params)
+        ball_params = check_collision(ball_params, A, B)
+    print_the_score(sc, game_score, game_diff)
+    pygame.display.flip()
+
+pygame.quit()
