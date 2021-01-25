@@ -1,6 +1,6 @@
 import pygame
 from pygame.draw import *
-from random import randint
+from random import randint, choice
 
 pygame.init()
 
@@ -23,6 +23,14 @@ def generate_new_ball() -> list:
     генерирует псевдослучайные параметры круга
     :return: цвет, координаты, радиус, вектор скорости круга
     """
+    x = randint(100, A - 100)
+    y = randint(100, B - 100)
+    r = choice(range(10, 101, 10))
+    color = choice(COLORS)
+    speed = [-1, 1]
+    Vx, Vy = speed[randint(0, 1)], speed[randint(0, 1)]
+    velocity = Vx, Vy
+    return [color, x, y, r, velocity]
 
 
 def draw_ball(screen, params) -> None:
