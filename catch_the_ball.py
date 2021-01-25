@@ -68,6 +68,13 @@ def check_collision(params, a, b) -> list:
     :param b: высота холста
     :return: параметры круга с пересчитанным вектором скорости
     """
+    color, x, y, r, [Vx, Vy] = params
+    if x - r == 0 or x + r == a:
+        Vx = -Vx
+    if y - r == 0 or y + r == b:
+        Vy = -Vy
+    params = [color, x, y, r, [Vx, Vy]]
+    return params
 
 
 def check_hit(params, event) -> bool:
@@ -77,6 +84,13 @@ def check_hit(params, event) -> bool:
     :param event: событие = клик мыши по холсту
     :return: есть попадание: True; нет попадания: False
     """
+    x_ball, y_ball, r = params[1:4]
+    x_clk, y_clk = event.pos
+    distance = ((x_clk - x_ball) ** 2 + (y_clk - y_ball) ** 2) ** 0.5
+    if distance <= r:
+        return True
+    else:
+        return False
 
 def calc_score(params, score) -> tuple:
     """
