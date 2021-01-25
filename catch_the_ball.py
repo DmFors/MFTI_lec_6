@@ -29,8 +29,7 @@ def generate_new_ball() -> list:
     color = choice(COLORS)
     speed = [-1, 1]
     Vx, Vy = speed[randint(0, 1)], speed[randint(0, 1)]
-    velocity = Vx, Vy
-    return [color, x, y, r, velocity]
+    return [color, x, y, r, [Vx, Vy]]
 
 
 def draw_ball(screen, params) -> None:
@@ -44,19 +43,16 @@ def draw_ball(screen, params) -> None:
     circle(screen, color, (x, y), r)
 
 
-def move_ball(screen, params) -> list:
+def move_ball(params) -> list:
     """
-    перемещает круг в направлении, заданном вектором скорости
-    :param screen: холст, на котором осуществляется перемещение круга
+    пересчитывает координаты круга, в соответствии с заданным вектором скорости
     :param params: параметры круга и его скорости (color, x, y, r, velocity)
-    :return новые параметры круга
+    :return параметры круга с пересчитанными координатами (color, x, y, r, velocity)
     """
     color, x, y, r, [Vx, Vy] = params
     x = x + Vx
     y = y + Vy
     params = [color, x, y, r, [Vx, Vy]]
-    screen.fill('black')
-    draw_ball(screen, params)
     return params
 
 
@@ -122,24 +118,24 @@ def print_the_score(screen, score, diff) -> None:
     screen.blit(textSurfaceObj, [10, 10])
 
 
-def mouse_button_down() -> None:
+def mouse_button_down(balls, game_score, game_diff) -> tuple:
     """
     обрабатывает нажатия кнопок мышки
     :return:
     """
-    global screen_is_empty, game_score, game_diff
-    if check_hit(ball_params, event):
-        sc.fill(BLACK)
-        screen_is_empty = True
-        game_score, game_diff = calc_score(ball_params, game_score)
+    for i, ball_params in enumerate(balls):
+        if check_hit(ball_params, event):
+            game_score, game_diff = calc_score(ball_params, game_score)
+            del balls[i]
+    return balls, game_score, game_diff
 
 
 pygame.display.update()
 clock = pygame.time.Clock()
 finished = False
-screen_is_empty = True
 ball_params = None
-game_score = game_diff = 0
+game_score = game_diff = spawn_time = 0
+balls = []
 
 while not finished:
     clock.tick(FPS)
@@ -148,15 +144,20 @@ while not finished:
             finished = True
             break
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_button_down()
+            balls, game_score, game_diff = mouse_button_down(balls, game_score, game_diff)
 
-    if screen_is_empty:
-        ball_params = generate_new_ball()
+    sc.fill(BLACK)
+    if len(balls) < 10:
+        spawn_time += 1
+        if spawn_time > 99:
+            balls.append(generate_new_ball())
+            spawn_time = 0
+
+    for i, ball_params in enumerate(balls):
         draw_ball(sc, ball_params)
-        screen_is_empty = False
-    else:
-        ball_params = move_ball(sc, ball_params)
-        ball_params = check_collision(ball_params, A, B)
+        balls[i] = move_ball(ball_params)
+        balls[i] = check_collision(balls[i], A, B)
+
     print_the_score(sc, game_score, game_diff)
     pygame.display.flip()
 
