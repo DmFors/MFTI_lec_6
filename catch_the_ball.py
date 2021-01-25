@@ -40,6 +40,8 @@ def draw_ball(screen, params) -> None:
     :param params: параметры круга (color, x, y, r)
     :return: None
     """
+    color, x, y, r, *needless = params
+    circle(screen, color, (x, y), r)
 
 
 def move_ball(screen, params) -> list:
@@ -49,6 +51,13 @@ def move_ball(screen, params) -> list:
     :param params: параметры круга и его скорости (color, x, y, r, velocity)
     :return новые параметры круга
     """
+    color, x, y, r, [Vx, Vy] = params
+    x = x + Vx
+    y = y + Vy
+    params = [color, x, y, r, [Vx, Vy]]
+    screen.fill('black')
+    draw_ball(screen, params)
+    return params
 
 
 def check_collision(params, a, b) -> list:
