@@ -92,6 +92,7 @@ def check_hit(params, event) -> bool:
     else:
         return False
 
+
 def calc_score(params, score) -> tuple:
     """
     добавляет к общему счёту число очков,
@@ -100,6 +101,10 @@ def calc_score(params, score) -> tuple:
     :param score: счёт
     :returns: новое значение счёта, разницу между предыд и тек счётом
     """
+    r = params[3]
+    diff = 110 - r
+    score += diff
+    return score, diff
 
 
 def print_the_score(screen, score, diff) -> None:
@@ -110,6 +115,11 @@ def print_the_score(screen, score, diff) -> None:
     :param diff:  разница между пред и тек счётом
     :return:
     """
+    color = (255, 255, 255)
+    background = (100, 50, 100)
+    fontObj = pygame.font.Font(None, 50)
+    textSurfaceObj = fontObj.render(f'Your score: {score} (+{diff})', True, color, background)
+    screen.blit(textSurfaceObj, [10, 10])
 
 
 def mouse_button_down() -> None:
@@ -117,6 +127,11 @@ def mouse_button_down() -> None:
     обрабатывает нажатия кнопок мышки
     :return:
     """
+    global screen_is_empty, game_score, game_diff
+    if check_hit(ball_params, event):
+        sc.fill(BLACK)
+        screen_is_empty = True
+        game_score, game_diff = calc_score(ball_params, game_score)
 
 
 pygame.display.update()
