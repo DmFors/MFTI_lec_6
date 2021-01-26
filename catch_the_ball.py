@@ -23,13 +23,27 @@ def generate_new_ball() -> list:
     генерирует псевдослучайные параметры круга
     :return: цвет, координаты, радиус, вектор скорости круга
     """
-    x = randint(100, A - 100)
-    y = randint(100, B - 100)
+    x = randint(101, A - 101)
+    y = randint(101, B - 101)
     r = choice(range(10, 101, 10))
     color = choice(COLORS)
-    speed = [-1, 1]
-    Vx, Vy = speed[randint(0, 1)], speed[randint(0, 1)]
-    return [color, x, y, r, [Vx, Vy]]
+    mutation = randint(1, 2)
+    if mutation == 1:
+        speed = [-1, 1]
+        Vx, Vy = choice(speed), choice(speed)
+        cost = 110 - r
+        mutation = mutation, None
+    else:
+        speed = [-1, 1]
+        Vx = choice(speed)
+        Vy = 0
+        cost = (110 - r) // 2
+        if Vx == 1:
+            mut_params = x - r, randint(x + r, A - r)
+        else:
+            mut_params = randint(0, x - r), x + r
+        mutation = mutation, mut_params
+    return [color, x, y, r, [Vx, Vy], cost, mutation]
 
 
 def draw_ball(screen, params) -> None:
@@ -49,27 +63,32 @@ def move_ball(params) -> list:
     :param params: параметры круга и его скорости (color, x, y, r, velocity)
     :return параметры круга с пересчитанными координатами (color, x, y, r, velocity)
     """
-    color, x, y, r, [Vx, Vy] = params
-    x = x + Vx
-    y = y + Vy
-    params = [color, x, y, r, [Vx, Vy]]
+    x, y, r, [Vx, Vy] = params[1:5]
+    params[1] = x + Vx
+    params[2] = y + Vy
     return params
 
 
 def check_collision(params, a, b) -> list:
     """
-    проверяет столкновение круга с границами холста
+    проверяет столкновение круга с другим кругом или границами холста
     :param params: параметры круга (color, x, y, r, velocity)
     :param a: ширина холста
     :param b: высота холста
     :return: параметры круга с пересчитанным вектором скорости
     """
-    color, x, y, r, [Vx, Vy] = params
-    if x - r == 0 or x + r == a:
+    x, y, r, [Vx, Vy], cost, mutation = params[1:]
+    num_of_mutation, mut_params = mutation
+    zero = 0
+    if num_of_mutation == 2:
+        zero = mut_params[0]
+        a = mut_params[1]
+
+    if x - r == zero or x + r == a:
         Vx = -Vx
     if y - r == 0 or y + r == b:
         Vy = -Vy
-    params = [color, x, y, r, [Vx, Vy]]
+    params[4] = [Vx, Vy]
     return params
 
 
@@ -87,20 +106,6 @@ def check_hit(params, event) -> bool:
         return True
     else:
         return False
-
-
-def calc_score(params, score) -> tuple:
-    """
-    добавляет к общему счёту число очков,
-    количество которых зависит от параметров полученного круга
-    :param params: пармаметры круга (color, x, y, r, velocity)
-    :param score: счёт
-    :returns: новое значение счёта, разницу между предыд и тек счётом
-    """
-    r = params[3]
-    diff = 110 - r
-    score += diff
-    return score, diff
 
 
 def print_the_score(screen, score, diff) -> None:
@@ -125,7 +130,8 @@ def mouse_button_down(balls, game_score, game_diff) -> tuple:
     """
     for i, ball_params in enumerate(balls):
         if check_hit(ball_params, event):
-            game_score, game_diff = calc_score(ball_params, game_score)
+            game_score += ball_params[5]
+            game_diff = ball_params[5]
             del balls[i]
     return balls, game_score, game_diff
 
