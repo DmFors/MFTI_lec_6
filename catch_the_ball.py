@@ -1,6 +1,7 @@
 import pygame
 from pygame.draw import *
 from random import randint, choice
+import os.path as path
 
 pygame.init()
 
@@ -39,7 +40,7 @@ def generate_new_ball() -> list:
         Vy = 0
         cost = (110 - r) // 2
         if Vx == 1:
-            mut_params = x - r, randint(x + r, A - r)
+            mut_params = x - r, randint(x + r, A)
         else:
             mut_params = randint(0, x - r), x + r
         mutation = mutation, mut_params
@@ -108,7 +109,7 @@ def check_hit(params, event) -> bool:
         return False
 
 
-def print_the_score(screen, score, diff) -> None:
+def print_score_canvas(screen, score, diff) -> None:
     """
     печатает текущее количество очков (счёт) на холст
     :param screen: холст, на который будет напечатан счёт
@@ -134,6 +135,39 @@ def mouse_button_down(balls, game_score, game_diff) -> tuple:
             game_diff = ball_params[5]
             del balls[i]
     return balls, game_score, game_diff
+
+
+def print_score_to_file(game_score):
+    """
+    добавляет текущий счёт в файл с таблицей лидеров
+    :param game_score: счёт в игре
+    :return:
+    """
+    leaderboard = [game_score]
+    if path.exists('leader_board.txt'):
+        leaderboard = append_leaderboard(leaderboard)
+        leaderboard.sort(reverse=True)
+
+    with open('leader_board.txt', 'w') as f:
+        number = 1
+        for score in leaderboard:
+            f.write(f'{number}. {score}\n')
+            number += 1
+
+
+def append_leaderboard(leader_list):
+    """
+    добавляет прошлую таблицу лидеров из файла  leader_board.txt в текущий список лидеров
+    :param leader_list: текущий список лидеров
+    :return: возвращает новый список лидеров
+    """
+    with open('leader_board.txt', 'r') as f:
+        strings = f.readlines()
+
+    for string in strings:
+        score = int(string.split('. ')[1])
+        leader_list.append(score)
+    return leader_list
 
 
 pygame.display.update()
@@ -164,7 +198,9 @@ while not finished:
         balls[i] = move_ball(ball_params)
         balls[i] = check_collision(balls[i], A, B)
 
-    print_the_score(sc, game_score, game_diff)
+    print_score_canvas(sc, game_score, game_diff)
     pygame.display.flip()
 
+
+print_score_to_file(game_score)
 pygame.quit()
